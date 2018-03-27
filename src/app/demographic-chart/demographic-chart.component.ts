@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ViewEncapsulation, OnChanges, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { TornadoChartData } from '../model/tornadoData';
-// import { FormControl, FormGroup } from '@angular/forms';
 
 import * as d3 from 'd3';
 
@@ -57,26 +56,34 @@ export class DemographicChartComponent implements OnInit, OnChanges {
   private svg_2: any;
 
 
-  // form related
-  // benchmarkOrder = 'Default';
-  // form: FormGroup;
 
-  sizes = [
-    { 'size': '0', 'diameter': '16000 km', 'state': true },
-    { 'size': '1', 'diameter': '32000 km', 'state': true }
-  ];
+  private allRegionCombined: Set<string>;
+  private allRelationCombined: Set<string>;
+
+
+  // All Checkbox
+  private selectedRegionAll: any;
+  private selectedRelationAll: any;
+
+  // Element Checkbox
+
+  public regionSelector: Array<any>;
+  public relationSelector: Array<any>;
+
+
+  // maintaining current selection
+  regionSelection: Array<string>;
+  relationSelection: Array<string>;
+
 
 
   constructor() { }
 
   ngOnInit() {
 
-    // this.form = new FormGroup({
-    //   sorting: new FormControl('Default'),
-    // });
-
-
     this.updateChartData();
+    this.createSelector();
+
     this.createChart_proposal();
     this.createChart_benchmark();
 
@@ -89,6 +96,114 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
   }
 
+  createSelector() {
+    // initialize Region Selectors
+    this.regionSelector = new Array();
+    this.selectedRegionAll = true;
+    this.regionSelection = new Array();
+
+
+    this.allRegionCombined.forEach(element => {
+      this.regionSelector.push({ region: element, selected: true });
+      this.regionSelection.push(element);
+    });
+
+    // console.log(this.regionSelector);
+    // console.log(this.regionSelection);
+
+
+    // initialize Relation Selectors
+    this.relationSelector = new Array();
+    this.selectedRelationAll = true;
+    this.relationSelection = new Array();
+
+    this.allRelationCombined.forEach(element => {
+      this.relationSelector.push({ relation: element, selected: true });
+      this.relationSelection.push(element);
+    });
+
+  }
+
+  selectRegionAll() {
+    this.regionSelection = [];
+    for (const i of this.regionSelector) {
+      i.selected = this.selectedRegionAll;
+    }
+
+    if (this.selectedRegionAll) {
+      for (const i of this.regionSelector) {
+        this.regionSelection.push(i.region);
+      }
+
+    }
+
+    // do update
+
+    this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
+    this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
+
+  }
+
+
+  checkIfAllRegionSelected() {
+    this.selectedRegionAll = this.regionSelector.every(function (item: any) {
+      return item.selected === true;
+    });
+    this.regionSelection = [];
+    for (const i of this.regionSelector) {
+      if (i.selected) {
+        this.regionSelection.push(i.region);
+      }
+    }
+
+    // do update
+
+
+    this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
+    this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
+  }
+
+  selectRelationAll() {
+    this.relationSelection = [];
+    for (const i of this.relationSelector) {
+      i.selected = this.selectedRelationAll;
+    }
+
+    if (this.selectedRelationAll) {
+      for (const i of this.relationSelector) {
+        this.relationSelection.push(i.relation);
+      }
+    }
+    // do update
+    this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
+    this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
+
+
+  }
+
+
+  checkIfAllRelationSelected() {
+    this.selectedRelationAll = this.relationSelector.every(function (item: any) {
+      return item.selected === true;
+    });
+    this.relationSelection = [];
+    for (const i of this.relationSelector) {
+      if (i.selected) {
+        this.relationSelection.push(i.relation);
+      }
+    }
+
+    // do update
+
+    this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
+    this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
+
+
+  }
+
+
+
+
   updateChartData() {
     this.proposalChartData = new TornadoChartData(this.proposalDemographicJson);
     this.proposalgraphData = this.proposalChartData.getGraphData();
@@ -100,6 +215,12 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     // this.proposalgraphData.forEach(el => el.source = 'proposal');
     // this.benchmarkgraphData.forEach(el => el.source = 'benchmark');
     // this.graphDataCombined = this.benchmarkgraphData.concat(this.proposalgraphData);
+
+
+    this.allRegionCombined = new Set([...this.proposalChartData.getAllRegion(), ...this.benchmarkChartData.getAllRegion()]);
+    this.allRelationCombined = new Set([...this.proposalChartData.getAllRelation(), ...this.benchmarkChartData.getAllRelation()]);
+
+    // console.log(Array.from(this.allRegionCombined));
 
   }
 
@@ -216,7 +337,7 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
   }
 
-  updateChart_proposal(jsonData: any[]) {
+  updateChart_proposal(jsonData: any[], regions?: Array<string>, relation?: Array<string>) {
     // update container size
 
     const htmlElement = this.proposalDemoChartContainer.nativeElement;
@@ -231,7 +352,7 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     this.yScale_1.range([this.height_1, 0]);
 
     // update data  add filters to process data
-    this.proposalChartData.processGraphData(jsonData);
+    this.proposalChartData.processGraphData(jsonData, regions, relation);
     this.proposalgraphData = this.proposalChartData.getGraphData();
     this.proposalDemoMaxPercentage = this.proposalChartData.getMaxPercentage() + 0.05;
 
@@ -307,7 +428,7 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
   }
 
-  updateChart_benchmark(jsonData: any[]) {
+  updateChart_benchmark(jsonData: any[], regions?: Array<string>, relation?: Array<string>) {
     const htmlElement = this.benchmarkDemoChartContainer.nativeElement;
     this.width_2 = htmlElement.offsetWidth - this.margin.left - this.margin.right;
     this.height_2 = htmlElement.offsetHeight - this.margin.top - this.margin.bottom;
@@ -320,7 +441,7 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     this.yScale_2.range([this.height_2, 0]);
 
     // update data  add filters to process data
-    this.benchmarkChartData.processGraphData(jsonData);
+    this.benchmarkChartData.processGraphData(jsonData, regions, relation);
     this.benchmarkgraphData = this.benchmarkChartData.getGraphData();
     this.BenchmarkDemoMaxPercentage = this.benchmarkChartData.getMaxPercentage() + 0.05;
 
@@ -402,18 +523,9 @@ export class DemographicChartComponent implements OnInit, OnChanges {
   @HostListener('window:resize', ['$event'])
   onresize(event) {
     console.log('resize!');
-    this.updateChart_proposal(this.proposalDemographicJson);
-    this.updateChart_benchmark(this.benchmarkDemographicJson);
+    this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
+    this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
   }
 
-  isAllChecked() {
-    console.log('fired');
-    console.log(this.sizes.every(d => d.state));
-    return this.sizes.every(d => d.state);
-  }
-
-  checkAll(ev) {
-    this.sizes.forEach(x => x.state = ev.target.checked);
-  }
 
 }

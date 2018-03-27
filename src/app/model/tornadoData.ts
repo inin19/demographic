@@ -18,16 +18,16 @@ export class TornadoChartData {
 
 
     // Dimensions
-    private relationDimension: any;
-    private regionDimension: any;
-    private genderDimension: any;
+    private relationDimension: crossfilter.Dimension<any, any>;
+    private regionDimension: crossfilter.Dimension<any, any>;
+    private genderDimension: crossfilter.Dimension<any, any>;
 
-    private graphDimension: any;
+    private graphDimension: crossfilter.Dimension<any, any>;
 
 
     // Groups
-    private graphDimensionGroup: any;
-    private genderDimensionGroup: any;
+    private graphDimensionGroup: crossfilter.Group<any, any, any>;
+    private genderDimensionGroup: crossfilter.Group<any, any, any>;
 
 
     // Output
@@ -37,6 +37,9 @@ export class TornadoChartData {
     private maleMemberCount: number;
     private maxPercentage: number;
 
+
+    private allRegion: string[];
+    private allRelation: string[];
 
 
     constructor(data: Array<any>) {
@@ -78,19 +81,28 @@ export class TornadoChartData {
             d.key = JSON.parse(d.key);
         });
 
+        // console.log(this.regionDimension.group().reduceCount().all());
+
+        // this.regionDimension.group().reduceCount().all().forEach(element => {
+        //     console.log(element);
+        // });
+
+
+        this.allRegion = this.regionDimension.group().reduceCount().all().map(item => item.key);
+        this.allRelation = this.relationDimension.group().reduceCount().all().map(item => item.key);
 
     }
 
     processGraphData(data: Array<any>, regions?: Array<string>, relation?: Array<string>) {
 
         if (regions) {
-            this.regionDimension.filter((d) => regions.indexOf(d) !== -1);
+            this.regionDimension.filter((d) => regions.indexOf(d.toString()) !== -1);
         } else {
             this.regionDimension.filterAll();
         }
 
         if (relation) {
-            this.relationDimension.filter((d) => relation.indexOf(d) !== -1);
+            this.relationDimension.filter((d) => relation.indexOf(d.toString()) !== -1);
         } else {
             this.relationDimension.filterAll();
         }
@@ -118,17 +130,23 @@ export class TornadoChartData {
         this.graphData.forEach(element => {
             if (element.key.gender === TornadoChartData.FEMALE) {
                 element.genderTotal = this.femaleMemberCount;
-                element.percentage = element.value / element.genderTotal;
+                // check divided 0
+                element.percentage = element.genderTotal === 0 ? 0 : element.value / element.genderTotal;
                 element.percentage = - element.percentage;
             } else {
                 element.genderTotal = this.maleMemberCount;
-                element.percentage = element.value / element.genderTotal;
+                // check divided 0
+                element.percentage = element.genderTotal === 0 ? 0 : element.value / element.genderTotal;
 
             }
         });
 
 
         this.maxPercentage = d3.max(this.graphData, (d) => Math.abs(d.percentage));
+
+        // this.graphData.forEach(element => {
+        //     console.log(element);
+        // });
 
     }
 
@@ -140,5 +158,14 @@ export class TornadoChartData {
 
     getMaxPercentage(): any {
         return this.maxPercentage;
+    }
+
+    getAllRegion(): string[] {
+        return this.allRegion;
+    }
+
+
+    getAllRelation(): string[] {
+        return this.allRelation;
     }
 }

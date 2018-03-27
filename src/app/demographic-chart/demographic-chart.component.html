@@ -1,25 +1,49 @@
 <div class="row">
 
-  <div class="a">
-
-    <label>
-      <input type="checkbox" name="all" [checked]="isAllChecked()" (change)="checkAll($event)" />
-    </label>
-
-    <table>
-      <tbody>
-        <tr *ngFor="let size of sizes ; let i = index">
-          <td class="text-right">{{i + 1}}</td>
-          <td class="text-right">{{size.size}}</td>
-          <td>{{size.diameter}}</td>
-          <td class="text-center">
-            <input type="checkbox" value="{{size.id}}" [(ngModel)]="size.state" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
+  <div class="col">
+    <ul>
+      <li>
+        <input type="checkbox" [(ngModel)]="selectedRegionAll" (change)="selectRegionAll()" /> (All Regions)
+      </li>
+      <li *ngFor="let n of regionSelector">
+        <input type="checkbox" [(ngModel)]="n.selected" (change)="checkIfAllRegionSelected()"> {{n.region}}
+      </li>
+    </ul>
   </div>
+
+  <div class="col">
+      <ul>
+        <li>
+          <input type="checkbox" [(ngModel)]="selectedRelationAll" (change)="selectRelationAll()" /> (All Relation)
+        </li>
+        <li *ngFor="let n of relationSelector">
+          <input type="checkbox" [(ngModel)]="n.selected" (change)="checkIfAllRelationSelected()"> {{n.relation}}
+        </li>
+      </ul>
+    </div>
+
+
+
+</div>
+
+<div class="row">
+
+  <!-- <form [formGroup]="regionForm">
+
+    <ul>
+      <li>
+        <label class="center-block">
+          <input type="checkbox" formControlName="region" value="All"> All
+        </label>
+      </li>
+
+      <li *ngFor="let r of allRegionCombined">
+        <label class="center-block">
+          <input type="checkbox" formControlName="region" value="{{r}}" > {{r}}
+        </label>
+      </li>
+    </ul>
+  </form> -->
 
 
   <div class="col">
