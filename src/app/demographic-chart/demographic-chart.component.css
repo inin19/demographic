@@ -1,3 +1,17 @@
 .tornadoChart {
     height: 500px;
 }
+
+.bar--positive {
+    fill: #9BCCF5;
+}
+
+.bar--negative {
+    fill: pink;
+}
+
+.tick text {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 12px;
+    fill: #666;
+}
