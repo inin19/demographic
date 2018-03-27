@@ -57,8 +57,8 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
 
 
-  private allRegionCombined: Set<string>;
-  private allRelationCombined: Set<string>;
+  private allRegionCombined: string [];
+  private allRelationCombined: string [];
 
 
   // All Checkbox
@@ -217,11 +217,13 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     // this.graphDataCombined = this.benchmarkgraphData.concat(this.proposalgraphData);
 
 
-    this.allRegionCombined = new Set([...this.proposalChartData.getAllRegion(), ...this.benchmarkChartData.getAllRegion()]);
-    this.allRelationCombined = new Set([...this.proposalChartData.getAllRelation(), ...this.benchmarkChartData.getAllRelation()]);
+    const allRegionCombinedSet = new Set([...this.proposalChartData.getAllRegion(), ...this.benchmarkChartData.getAllRegion()]);
+    const allRelationCombinedSet = new Set([...this.proposalChartData.getAllRelation(), ...this.benchmarkChartData.getAllRelation()]);
 
-    // console.log(Array.from(this.allRegionCombined));
+    // console.log(Array.from(this.allRegionCombined).sort());
 
+    this.allRegionCombined   = Array.from(allRegionCombinedSet).sort();
+    this.allRelationCombined  = Array.from(allRelationCombinedSet).sort();
   }
 
 
