@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, ViewEncapsulation, OnChanges, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { TornadoChartData } from '../model/tornadoData';
+// import { FormControl, FormGroup } from '@angular/forms';
+
 import * as d3 from 'd3';
 
 @Component({
@@ -33,7 +35,7 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
   // chart element
 
-  private margin: any = { top: 20, right: 20, bottom: 30, left: 50 };
+  private margin: any = { top: 50, right: 20, bottom: 30, left: 50 };
   private chart_1: any;
   private width_1: number;
   private height_1: number;
@@ -55,11 +57,25 @@ export class DemographicChartComponent implements OnInit, OnChanges {
   private svg_2: any;
 
 
+  // form related
+  // benchmarkOrder = 'Default';
+  // form: FormGroup;
+
+  sizes = [
+    { 'size': '0', 'diameter': '16000 km', 'state': true },
+    { 'size': '1', 'diameter': '32000 km', 'state': true }
+  ];
 
 
   constructor() { }
 
   ngOnInit() {
+
+    // this.form = new FormGroup({
+    //   sorting: new FormControl('Default'),
+    // });
+
+
     this.updateChartData();
     this.createChart_proposal();
     this.createChart_benchmark();
@@ -142,6 +158,8 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     // move y axis path to the middle
     d3.select('#proposalDemographic .y.axis path')
       .attr('transform', 'translate(' + this.xScale_1(0) + ',0)');
+
+
 
   }
 
@@ -386,6 +404,16 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     console.log('resize!');
     this.updateChart_proposal(this.proposalDemographicJson);
     this.updateChart_benchmark(this.benchmarkDemographicJson);
+  }
+
+  isAllChecked() {
+    console.log('fired');
+    console.log(this.sizes.every(d => d.state));
+    return this.sizes.every(d => d.state);
+  }
+
+  checkAll(ev) {
+    this.sizes.forEach(x => x.state = ev.target.checked);
   }
 
 }

@@ -1,5 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
 
 import { HttpClientModule } from '@angular/common/http';
 
@@ -17,7 +19,8 @@ import { DemographicChartComponent } from './demographic-chart/demographic-chart
   ],
   imports: [
     BrowserModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
   providers: [DemographicService],
   bootstrap: [AppComponent]

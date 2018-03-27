@@ -1,4 +1,27 @@
 <div class="row">
+
+  <div class="a">
+
+    <label>
+      <input type="checkbox" name="all" [checked]="isAllChecked()" (change)="checkAll($event)" />
+    </label>
+
+    <table>
+      <tbody>
+        <tr *ngFor="let size of sizes ; let i = index">
+          <td class="text-right">{{i + 1}}</td>
+          <td class="text-right">{{size.size}}</td>
+          <td>{{size.diameter}}</td>
+          <td class="text-center">
+            <input type="checkbox" value="{{size.id}}" [(ngModel)]="size.state" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+
   <div class="col">
     <div class="tornadoChart" id='proposalDemographic' #proposalDemographic></div>
   </div>
