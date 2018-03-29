@@ -1,6 +1,10 @@
 import { Component, OnInit, Input, ViewEncapsulation, OnChanges, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { TornadoChartData } from '../model/tornadoData';
 
+import { MyTooltipComponent } from '../my-tooltip/my-tooltip.component';
+import { D3TooltipService } from 'ngx-d3-tooltip';
+
+
 import * as d3 from 'd3';
 
 @Component({
@@ -11,6 +15,8 @@ import * as d3 from 'd3';
 })
 export class DemographicChartComponent implements OnInit, OnChanges {
   static barType = ['proposal', 'benchmark'];
+
+  tooltip: (selection) => void;
 
   @Input() private proposalDemographicJson: any[];
   @Input() private benchmarkDemographicJson: any[];
@@ -57,8 +63,8 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
 
 
-  private allRegionCombined: string [];
-  private allRelationCombined: string [];
+  private allRegionCombined: string[];
+  private allRelationCombined: string[];
 
 
   // All Checkbox
@@ -77,12 +83,22 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
 
 
-  constructor() { }
+  constructor() {
+  }
+
+
 
   ngOnInit() {
 
     this.updateChartData();
     this.createSelector();
+
+
+    // check data input
+
+    // this.proposalgraphData.forEach(element => {
+    //   console.log(element);
+    // });
 
     this.createChart_proposal();
     this.createChart_benchmark();
@@ -222,8 +238,8 @@ export class DemographicChartComponent implements OnInit, OnChanges {
 
     // console.log(Array.from(this.allRegionCombined).sort());
 
-    this.allRegionCombined   = Array.from(allRegionCombinedSet).sort();
-    this.allRelationCombined  = Array.from(allRelationCombinedSet).sort();
+    this.allRegionCombined = Array.from(allRegionCombinedSet).sort();
+    this.allRelationCombined = Array.from(allRelationCombinedSet).sort();
   }
 
 
@@ -425,7 +441,10 @@ export class DemographicChartComponent implements OnInit, OnChanges {
       .attr('class', function (d) { return 'bar bar--' + (d.percentage < 0 ? 'negative' : 'positive'); })
       .attr('x', (d) => this.xScale_1(Math.min(0, d.percentage)))
       .attr('width', (d) => Math.abs(this.xScale_1(d.percentage) - this.xScale_1(0)))
-      .attr('height', this.yScale_1.bandwidth());
+      .attr('height', this.yScale_1.bandwidth())
+      .on('mouseover', this.handleMouseOver())
+      .on('mousemove', this.handleMouseMove())
+      .on('mouseout', this.handleMouseOut());
 
 
   }
@@ -528,6 +547,63 @@ export class DemographicChartComponent implements OnInit, OnChanges {
     this.updateChart_proposal(this.proposalDemographicJson, this.regionSelection, this.relationSelection);
     this.updateChart_benchmark(this.benchmarkDemographicJson, this.regionSelection, this.relationSelection);
   }
+
+
+  // private onMouseover(): (d, i) => void {
+  //   return (d, i) => {
+  //     d3.select(d3.event.currentTarget).style({
+  //       'fill': 'yellow'
+  //     });
+  //     this.logData(d);
+  //   }
+  // }
+
+  // i is the index of the data, d is the actual data
+  handleMouseOver(): (d, i) => void {
+    return (d, i) => {
+      console.log('in mouseOver');
+      // console.log(d3.event.currentTarget);  is the current selcted DOM element
+      d3.select(d3.event.currentTarget)
+        .attr('opacity', 0.5);
+
+
+      const formatFixedPercent = d3.format('.1%');
+
+      d3.select('#myTooltip')
+        .style('opacity', 1)
+        .html(formatFixedPercent(Math.abs(d.percentage)));
+
+    };
+  }
+
+  handleMouseOut(): (d, i) => void {
+    return (d, i) => {
+      console.log('in MouseOut');
+      // console.log(d3.event.currentTarget);  is the current selcted DOM element
+      d3.select(d3.event.currentTarget)
+        .attr('opacity', 1);
+
+      d3.select('#myTooltip')
+        .style('opacity', 0);
+
+    };
+  }
+
+
+
+
+
+  handleMouseMove(): (d, i) => void {
+    return (d, i) => {
+
+
+      d3.select('#myTooltip')
+        .style('left', d3.event.pageX + 10 + 'px')
+        .style('top', d3.event.pageY - 10 + 'px');
+
+    };
+  }
+
 
 
 }
